@@ -1,13 +1,13 @@
-DROP TABLE IF EXISTS pub;
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+DROP TABLE IF EXISTS jawad;
 
-CREATE TABLE pub (
-    uid UUID NOT NULL DEFAULT uuid_generate_v4(),
-    f_name VARCHAR(255),
-    l_name VARCHAR(255),
-    rx_name VARCHAR(255),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Adding datetime parameter
-    PRIMARY KEY (uid)
+CREATE TABLE jawad (
+    Prescription_name VARCHAR(255),
+    Raw_instruction VARCHAR(255),
+    expiration_date DATE,  
+    Expected_time1 DATE,   
+    Expected_time2 DATE,  
+    Expected_time3 DATE,   
+    PRIMARY KEY(Prescription_name)
 );
 
-SELECT * FROM pub;
+SELECT * FROM jawad;
