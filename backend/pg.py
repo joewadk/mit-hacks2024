@@ -1,95 +1,160 @@
-from dotenv import load_dotenv
-import psycopg2
-import os
-load_dotenv()
+"use client";
 
-# Function to query data from the database
-def query_data(table):
-    try:
-        # Connect to the database
-        con = psycopg2.connect(
-            host=os.getenv('db_host'),
-            database=os.getenv('db_database'),
-            user=os.getenv('db_user'),
-            password=os.getenv('db_password'),
-            port=5432
-        )
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
-        cur = con.cursor()
+export function ImageUploadPopup({ reloadPills }) {
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [ocrResult, setOcrResult] = useState({});
+  const [isOpen, setIsOpen] = useState(false);
 
-        # Prepare and execute the SQL query
-        query = f"SELECT * FROM {table}"
-        cur.execute(query)
+  // States for each column in the SQL table
+  const [prescriptionName, setPrescriptionName] = useState("");
+  const [rawInstruction, setRawInstruction] = useState("");
+  const [expirationDate, setExpirationDate] = useState("");
+  const [expectedTime1, setExpectedTime1] = useState("");
+  const [expectedTime2, setExpectedTime2] = useState("");
+  const [expectedTime3, setExpectedTime3] = useState("");
 
-        # Fetch all rows
-        rows = cur.fetchall()
+  // Handle image upload and OCR processing
+  const handleFileUpload = async (event) => {
+    const files = event.target.files;
+    if (files.length > 0) {
+      const formData = new FormData();
+      formData.append("images", files[0]);
 
-        # Return the fetched rows
-        return rows
+      try {
+        // Call the backend OCR API
+        const response = await fetch("http://localhost:5000/scan", {
+          method: "POST",
+          body: formData,
+        });
 
-    except Exception as e:
-        print(f"An error occurred while querying data: {e}")
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
 
-    finally:
-        # Always ensure the connection is closed
-        if con:
-            cur.close()
-            con.close()
+        const result = await response.json();
+        console.log(result); // The result will contain the OCR and LLM data
 
-# Function to insert or update data in the database
-def insert_data(prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3):
-    """
-    Inserts or updates a record in the 'jawad' table.
-    
-    :param prescription_name: Name of the prescription
-    :param raw_instruction: Instructions for the prescription
-    :param expiration_date: Expiration date of the prescription
-    :param expected_time1: First expected time for the prescription
-    :param expected_time2: Second expected time for the prescription
-    :param expected_time3: Third expected time for the prescription
-    """
-    try:
-        # Connect to the database
-        con = psycopg2.connect(
-            host=os.getenv('db_host'),
-            database=os.getenv('db_database'),
-            user=os.getenv('db_user'),
-            password=os.getenv('db_password'),
-            port=5432
-        )
-        
-        cur = con.cursor()
+        // Set the OCR result into the appropriate fields
+        setOcrResult(result);
+        setPrescriptionName(result.prescription_name || "");
+        setRawInstruction(result.raw_instruction || "");
+        setExpirationDate(result.expiration_date || "");
+        setExpectedTime1(result.expected_time1 || "");
+        setExpectedTime2(result.expected_time2 || "");
+        setExpectedTime3(result.expected_time3 || "");
 
-        # SQL query for inserting or updating the record, with placeholders for safety
-        insert_query = """
-            INSERT INTO jawad (prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3) 
-            VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT (prescription_name) 
-            DO UPDATE SET 
-                raw_instruction = EXCLUDED.raw_instruction,
-                expiration_date = EXCLUDED.expiration_date,
-                expected_time1 = EXCLUDED.expected_time1,
-                expected_time2 = EXCLUDED.expected_time2,
-                expected_time3 = EXCLUDED.expected_time3;
-        """
-        
-        # Convert empty strings to None so that NULL is inserted in the database
-        expected_time1 = expected_time1 if expected_time1 else None
-        expected_time2 = expected_time2 if expected_time2 else None
-        expected_time3 = expected_time3 if expected_time3 else None
+        alert("OCR processed and data pre-filled!");
 
-        # Execute the insert or update query with the provided column values
-        cur.execute(insert_query, (prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3))
-        con.commit()
+      } catch (error) {
+        console.error("Error processing OCR:", error);
+      }
+    }
+  };
 
-        print("Record inserted/updated successfully.")
-    
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    
-    finally:
-        # Close the cursor and the connection
-        if cur:
-            cur.close()
-        if con:
-            con.close()
+  // Submitting form data to the backend
+  const handleSubmit = async () => {
+    const formData = {
+      prescription_name: prescriptionName,
+      raw_instruction: rawInstruction,
+      expiration_date: expirationDate,
+      expected_time1: expectedTime1,
+      expected_time2: expectedTime2,
+      expected_time3: expectedTime3,
+    };
+
+    try {
+      const response = await fetch("http://localhost:5000/input_data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log(result);
+
+      alert("Data submitted successfully!");
+      reloadPills();
+      setIsOpen(false);
+
+    } catch (error) {
+      console.error("Error submitting data:", error);
+    }
+  };
+
+  return (
+    <div>
+      <Label htmlFor="image-upload">Upload Prescription Image</Label>
+      <Input id="image-upload" type="file" accept="image/*" onChange={handleFileUpload} />
+      
+      <form className="space-y-4 pt-4">
+        <div className="space-y-2">
+          <Label htmlFor="prescription_name">Prescription Name</Label>
+          <Input
+            id="prescription_name"
+            placeholder="Enter prescription name"
+            value={prescriptionName}
+            onChange={(e) => setPrescriptionName(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="raw_instruction">Instructions</Label>
+          <Input
+            id="raw_instruction"
+            placeholder="Enter instructions"
+            value={rawInstruction}
+            onChange={(e) => setRawInstruction(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="expiration_date">Expiration Date</Label>
+          <Input
+            id="expiration_date"
+            type="date"
+            value={expirationDate}
+            onChange={(e) => setExpirationDate(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="expected_time1">Expected Time 1</Label>
+          <Input
+            id="expected_time1"
+            placeholder="Enter expected time 1"
+            value={expectedTime1}
+            onChange={(e) => setExpectedTime1(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="expected_time2">Expected Time 2</Label>
+          <Input
+            id="expected_time2"
+            placeholder="Enter expected time 2"
+            value={expectedTime2}
+            onChange={(e) => setExpectedTime2(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="expected_time3">Expected Time 3</Label>
+          <Input
+            id="expected_time3"
+            placeholder="Enter expected time 3"
+            value={expectedTime3}
+            onChange={(e) => setExpectedTime3(e.target.value)}
+          />
+        </div>
+      </form>
+
+      <Button onClick={handleSubmit}>Submit</Button>
+    </div>
+  );
+}
