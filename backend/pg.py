@@ -40,8 +40,9 @@ insert_data(
     'Prescription B', 
     'Take once daily', 
     '2025-12-31', 
-    '2025-12-31',  # These are currently dates due to the table structure
+    '2025-12-31', 
     '2025-12-31', 
     '2025-12-31')
+
 #main
 query_data("jawad")
