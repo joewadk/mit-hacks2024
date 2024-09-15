@@ -30,7 +30,7 @@ export function PillsTableComponent() {
         }
   
         const data = await response.json();
-        setPills(data.data);  // Assuming the API sends the pills data under 'data'
+        setPills(data.data);  
       } catch (error) {
         setError(error.message);
       } finally {
@@ -70,7 +70,7 @@ export function PillsTableComponent() {
           </Button>
         </div>
         <h1 className="text-2xl font-bold">Pills</h1>
-        <ImageUploadPopup/>
+        <ImageUploadPopup/> 
       </div>
       <Table>
         <TableHeader>
@@ -83,7 +83,7 @@ export function PillsTableComponent() {
         <TableBody>
           {filteredPills.map((pill, index) => (
             <TableRow key={index} className="bg-red-700 text-white">
-              <TableCell>{pill.prescription_name}</TableCell> {/* Adjust key names based on API response */}
+              <TableCell>{pill.prescription_name}</TableCell> 
               <TableCell>{pill.raw_instruction}</TableCell>
               <TableCell>{pill.expiration_date}</TableCell>
             </TableRow>

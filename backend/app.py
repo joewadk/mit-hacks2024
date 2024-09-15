@@ -8,12 +8,10 @@ import sms
 load_dotenv()
 from flask_cors import CORS
 
-app = Flask(__name__)
-
 OPEN_AI_KEY = os.getenv('OPENAI_API_KEY')
-
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["http://localhost:3000"])
+
 # Function to encode the image
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:
@@ -186,6 +184,36 @@ def send_sms():
     # Call the send_sms function from sms.py
     result = sms.send_sms(recipient_email, sms_body)
     return jsonify({"message": result})
+
+@app.route('/input_data', methods=['POST'])
+def input_data():
+    try:
+        # Get JSON data from the frontend POST request
+        data = request.json
+
+         # Extract the individual values from the received JSON and log them
+        prescription_name = data['prescription_name']
+        raw_instruction = data['raw_instruction']
+        expiration_date = data['expiration_date'] if data['expiration_date'] else None
+        expected_time1 = data.get('expected_time1') if data['expected_time1'] else None
+        expected_time2 = data.get('expected_time2') if data['expected_time2'] else None
+        expected_time3 = data.get('expected_time3') if data['expected_time3'] else None
+
+
+        # Call the insert_data function from pg.py to insert or update the data
+        pg.insert_data(prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3)
+        print(expiration_date)
+        print("Inserting data:", prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3)
+        # Return a success message
+        return jsonify({"message": "Record inserted/updated successfully"}), 200
+
+    except KeyError as e:
+        # Handle missing fields in the request
+        return jsonify({"error": f"Missing field: {str(e)}"}), 400
+
+    except Exception as e:
+        # Handle any other errors
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
