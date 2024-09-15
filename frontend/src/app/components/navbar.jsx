@@ -32,8 +32,11 @@ export const Navbar = () => {
           <Link href="/" className="text-white hover:text-gray-200">
             Home
           </Link>
+          <Link href="/scan" className="text-white hover:text-gray-200">
+            Scan
+          </Link>
           <Link href="/pills" className="text-white hover:text-gray-200">
-            Pills
+            Your Rx
           </Link>
           <Link href="/chat" className="text-white hover:text-gray-200">
             Chat
