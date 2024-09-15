@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
-OPEN_AI_KEY = os.getenv('OPEN_AI_KEY')
+OPEN_AI_KEY = os.getenv('OPENAI_API_KEY')
 
 # Function to encode the image
 def encode_image(image_path):
@@ -30,7 +30,7 @@ payload = {
       "content": [
         {
           "type": "text",
-          "text": "What’s in this image?"
+          "text": "What’s in this image? "#filler for prompt to be received from frontend
         },
         {
           "type": "image_url",
@@ -58,4 +58,4 @@ payload = {
 
 response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
-print(response.json())
+print(response.json()['choices'][0]['message']['content'])
