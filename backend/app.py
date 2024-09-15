@@ -2,6 +2,9 @@ import base64
 import requests
 from dotenv import load_dotenv
 import os
+import pg
+import sms
+
 load_dotenv()
 
 OPEN_AI_KEY = os.getenv('OPENAI_API_KEY')
