@@ -2,15 +2,9 @@ from flask import Flask, request, jsonify
 import base64
 import requests
 import os
-<<<<<<< HEAD
-from flask import Flask, request, jsonify
-import pg
-import sms
-=======
 from dotenv import load_dotenv
 import pg  
 import sms  
->>>>>>> 72ac711787a4f571756c2a033d6705367b753fa2
 load_dotenv()
 from flask_cors import CORS
 
@@ -18,17 +12,13 @@ app = Flask(__name__)
 
 OPEN_AI_KEY = os.getenv('OPENAI_API_KEY')
 
-<<<<<<< HEAD
 app = Flask(__name__)
 CORS(app)
 # Function to encode the image
-=======
->>>>>>> 72ac711787a4f571756c2a033d6705367b753fa2
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-<<<<<<< HEAD
 # Scan route
 @app.route('/scan', methods=['POST'])
 def scan_images():
@@ -112,7 +102,6 @@ def get_data():
 
 if __name__ == '__main__':
     app.run(debug=True,port=5000)
-=======
 @app.route('/get_chat', methods=['GET'])
 def get_chat():
     user_query = request.args.get('query', default='', type=str)  
@@ -200,4 +189,3 @@ def send_sms():
 
 if __name__ == '__main__':
     app.run(debug=True)
->>>>>>> 72ac711787a4f571756c2a033d6705367b753fa2
