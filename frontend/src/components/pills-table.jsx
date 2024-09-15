@@ -10,37 +10,34 @@ export function PillsTableComponent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch the pills data from the backend
-  useEffect(() => {
-    async function fetchPills() {
-      try {
-        const response = await fetch('http://localhost:5000/pills', {
-          method: 'POST',  // Using POST to fetch data
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          // If needed, you can send extra data in the body of the POST request
-          body: JSON.stringify({
-            filter: "all"  // Example data sent in the POST request (if applicable)
-          })
-        });
+  // Function to fetch pills from the backend
+  const fetchPills = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/pills', {
+        method: 'POST',  // Using POST to fetch data
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filter: "all" }) // Example data sent in the POST request (if applicable)
+      });
   
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
-  
-        const data = await response.json();
-        setPills(data.data);  
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
-    }
   
+      const data = await response.json();
+      setPills(data.data);  
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch pills when the component is mounted
+  useEffect(() => {
     fetchPills();
   }, []);
-  
 
   const filteredPills = filter === 'today'
     ? pills.filter(pill => pill.expiry === "2024-09-14") // Example condition for today's pills
@@ -70,7 +67,9 @@ export function PillsTableComponent() {
           </Button>
         </div>
         <h1 className="text-2xl font-bold">Pills</h1>
-        <ImageUploadPopup/> 
+
+        {/* Pass the reloadPills function to ImageUploadPopup */}
+        <ImageUploadPopup reloadPills={fetchPills}/> 
       </div>
       <Table>
         <TableHeader>

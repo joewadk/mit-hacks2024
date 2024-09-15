@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Upload, Camera, ImagePlus } from "lucide-react";
 
-export function ImageUploadPopup() {
+export function ImageUploadPopup({ reloadPills }) {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -81,6 +81,9 @@ export function ImageUploadPopup() {
 
       alert("Data submitted successfully!");
 
+      // Call the reloadPills function to fetch the updated data
+      reloadPills();
+
     } catch (error) {
       console.error("Error submitting data:", error);
     }
@@ -136,35 +139,6 @@ export function ImageUploadPopup() {
                       style={{ maxHeight: "200px" }}
                     />
                   ))}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          {/* Capture Tab */}
-          <TabsContent value="capture">
-            <div className="flex flex-col items-center space-y-4 pt-4">
-              <Label htmlFor="camera-capture" className="w-full">
-                <div
-                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                  <Camera className="w-12 h-12 text-gray-400" />
-                  <p className="mt-2 text-sm text-gray-500">Click to take a picture</p>
-                </div>
-                <Input
-                  id="camera-capture"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleCapture}
-                />
-              </Label>
-              {capturedImage && (
-                <div className="mt-4">
-                  <img
-                    src={capturedImage}
-                    alt="Captured"
-                    className="max-w-full h-auto rounded-lg"
-                  />
                 </div>
               )}
             </div>
