@@ -19,8 +19,9 @@ export const Hero = () => {
               </Link>
             </div>
           </div>
-            <PillLogo/>
+        <PillLogo/>
         </div>
+        <p>*Data secured and not shared under any circumstances.</p>
       </div>
     </div>
   )
