@@ -2,9 +2,7 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import {ImageUploadPopup} from "./image-upload-popup"
 
 export function PillsTableComponent() {
   const [filter, setFilter] = useState("'all'")
@@ -13,7 +11,6 @@ export function PillsTableComponent() {
     { name: "Prescription B", instruction: "Take with food", expiry: "2024-09-14" },
   ])
 
-  // Ensure the filter comparison is correct
   const filteredPills = filter === 'today'
     ? pills.filter(pill => {
         return pill.expiry == "2024-09-14";
@@ -36,37 +33,7 @@ export function PillsTableComponent() {
           </Button>
         </div>
         <h1 className="text-2xl font-bold">Pills</h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="bg-green-600 hover:bg-green-700">Scan Pills</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Pill</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input id="name" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="instruction" className="text-right">
-                  Instruction
-                </Label>
-                <Input id="instruction" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="expiry" className="text-right">
-                  Expiry
-                </Label>
-                <Input id="expiry" type="date" className="col-span-3" />
-              </div>
-            </div>
-            <Button className="w-full">Add Pill</Button>
-          </DialogContent>
-        </Dialog>
+        <ImageUploadPopup/>
       </div>
       <Table>
         <TableHeader>
