@@ -150,6 +150,49 @@ def get_chat():
     return jsonify({"response": llm_response})
 
 
+@app.route('/chat-bot', methods=['POST'])
+def chat_bot():
+    data = request.json
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {OPEN_AI_KEY}"
+    }
+
+    if 'question' not in data or 'context' not in data:
+        return jsonify({"error": "Both 'question' and 'context' fields are required"}), 400
+
+    prompt = f"""
+    Answer the following question: {data['question']}
+    
+    Here is the context to the conversation: {data['context']}
+    """
+
+    payload = {
+        "model": "gpt-4",  # Use the correct model name
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt  # Pass the prompt as a single string
+            }
+        ],
+        "max_tokens": 300
+    }
+
+    try:
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+
+        # Handle unsuccessful responses
+        if response.status_code != 200:
+            return jsonify({"error": f"OpenAI API request failed with status {response.status_code}"}), response.status_code
+
+        # Extract the LLM's response
+        llm_response = response.json()['choices'][0]['message']['content']
+        return jsonify({"answer": llm_response}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/chat', methods=['POST'])
 def post_chat():
     data = request.json
