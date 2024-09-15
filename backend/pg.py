@@ -31,7 +31,15 @@ def insert_data(prescription_name, raw_instruction, expiration_date, expected_ti
         
     cur = con.cursor()
     insert_query = f"""INSERT INTO jawad (prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3) 
-        VALUES (%s, %s, %s, %s, %s, %s)"""
+        VALUES (%s, %s, %s, %s, %s, %s)
+        ON CONFLICT (prescription_name) 
+        DO UPDATE SET 
+            raw_instruction = EXCLUDED.raw_instruction,
+            expiration_date = EXCLUDED.expiration_date,
+            expected_time1 = EXCLUDED.expected_time1,
+            expected_time2 = EXCLUDED.expected_time2,
+            expected_time3 = EXCLUDED.expected_time3;
+        """
         
     cur.execute(insert_query, (prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3))
     con.commit()
