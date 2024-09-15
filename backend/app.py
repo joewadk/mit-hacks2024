@@ -106,6 +106,11 @@ def chat_bot():
         "Authorization": f"Bearer {OPEN_AI_KEY}"
     }
     medical_data=pg.query_data('jawad')
+    context = ""
+    for idx, row in enumerate(medical_data):
+        context += f"\nPrescription {idx + 1}:\n"
+    for i, item in enumerate(row):
+        context += f"Field {i + 1}: {item}\n"
     if 'question' not in data or 'context' not in data:
         return jsonify({"error": "Both 'question' and 'context' fields are required"}), 400
 
@@ -113,8 +118,10 @@ def chat_bot():
     You are the ai realtime assistant for PillPal. 
     Answer the following question: {data['question']}
     
-    Here is the context to the conversation: {data['context'],medical_data}
-    Please format as human-readable as possible. Do not 
+    Here is the context to the conversation: {data['context'],context}
+    Please format as human-readable as possible. Do not simply paste the medical data for the user to read. You must construct human-readable responses.
+    Your role is to be an assistant. If they have questions about what medications theyre taking, when to take it, and how to take it, you will always have the answer.
+    do not tell me what prescriptions they are taking. just answer their questions. do not spit out information from context out of context.
     """
 
     payload = {
