@@ -20,12 +20,12 @@ export function ChatAppComponent() {
       setInput('');
 
       try {
-        const response = await fetch('http://localhost:5000/chat', {
+        const response = await fetch('http://localhost:5000/chat-bot', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ question: newMessage.text }) // Only send the text
+          body: JSON.stringify({ question: newMessage.text, context: messages }) // Only send the text
         });
   
         if (!response.ok) {
