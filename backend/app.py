@@ -97,9 +97,6 @@ def get_data():
         return jsonify({"error": str(e)}), 500
 
 
-
-if __name__ == '__main__':
-    app.run(debug=True,port=5000)
 @app.route('/get_chat', methods=['GET'])
 def get_chat():
     user_query = request.args.get('query', default='', type=str)  
@@ -214,6 +211,25 @@ def input_data():
     except Exception as e:
         # Handle any other errors
         return jsonify({"error": str(e)}), 500
+# Directory where uploaded images will be saved
+UPLOAD_FOLDER = './images'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+@app.route('/upload_images', methods=['POST'])
+def upload_images():
+    try:
+        if 'images' not in request.files:
+            return jsonify({"error": "No files provided"}), 400
+
+        files = request.files.getlist('images')
+
+        for file in files:
+            file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+            file.save(file_path)
+
+        return jsonify({"message": "Images uploaded successfully!"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
