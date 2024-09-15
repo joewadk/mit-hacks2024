@@ -9,6 +9,7 @@ export function PillsTableComponent() {
   const [pills, setPills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedImages, setSelectedImages] = useState([]); // Track selected images for scanning
   const [checkedPills, setCheckedPills] = useState({ morning: [], afternoon: [], evening: [] }); // Track checked pills per time of day
 
   // Function to fetch pills from the backend
@@ -128,7 +129,7 @@ export function PillsTableComponent() {
             {filter !== 'all' && <TableHead className="font-bold">Select</TableHead>}
             <TableHead className="font-bold">Name</TableHead>
             <TableHead className="font-bold">Instruction</TableHead>
-            <TableHead className="font-bold">Expiry</TableHead>
+            <TableHead className="font-bold">Expiration Date</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
