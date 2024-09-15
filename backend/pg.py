@@ -15,9 +15,8 @@ def query_data(table):
     query=f"select * from {table}"
     cur.execute(query)
     rows = cur.fetchall()
-    for row in rows:
-            print(row)
     con.close()
+    return rows
 
 def insert_data(prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3):
 
@@ -36,13 +35,3 @@ def insert_data(prescription_name, raw_instruction, expiration_date, expected_ti
     cur.execute(insert_query, (prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3))
     con.commit()
     print("Record inserted successfully.")
-insert_data(
-    'Prescription B', 
-    'Take once daily', 
-    '2025-12-31', 
-    '2025-12-31', 
-    '2025-12-31', 
-    '2025-12-31')
-
-#main
-query_data("jawad")

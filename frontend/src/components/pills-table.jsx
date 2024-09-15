@@ -1,21 +1,58 @@
 'use client';
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {ImageUploadPopup} from "./image-upload-popup"
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ImageUploadPopup } from "./image-upload-popup";
 
 export function PillsTableComponent() {
-  const [filter, setFilter] = useState("'all'")
-  const [pills, setPills] = useState([
-    { name: "Prescription A", instruction: "Take twice daily", expiry: "2023-12-31" },
-    { name: "Prescription B", instruction: "Take with food", expiry: "2024-09-14" },
-  ])
+  const [filter, setFilter] = useState("'all'");
+  const [pills, setPills] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch the pills data from the backend
+  useEffect(() => {
+    async function fetchPills() {
+      try {
+        const response = await fetch('http://localhost:5000/pills', {
+          method: 'POST',  // Using POST to fetch data
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // If needed, you can send extra data in the body of the POST request
+          body: JSON.stringify({
+            filter: "all"  // Example data sent in the POST request (if applicable)
+          })
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+  
+        const data = await response.json();
+        setPills(data.data);  // Assuming the API sends the pills data under 'data'
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+  
+    fetchPills();
+  }, []);
+  
 
   const filteredPills = filter === 'today'
-    ? pills.filter(pill => {
-        return pill.expiry == "2024-09-14";
-      })
+    ? pills.filter(pill => pill.expiry === "2024-09-14") // Example condition for today's pills
     : pills;
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -46,9 +83,9 @@ export function PillsTableComponent() {
         <TableBody>
           {filteredPills.map((pill, index) => (
             <TableRow key={index} className="bg-red-700 text-white">
-              <TableCell>{pill.name}</TableCell>
-              <TableCell>{pill.instruction}</TableCell>
-              <TableCell>{pill.expiry}</TableCell>
+              <TableCell>{pill.prescription_name}</TableCell> {/* Adjust key names based on API response */}
+              <TableCell>{pill.raw_instruction}</TableCell>
+              <TableCell>{pill.expiration_date}</TableCell>
             </TableRow>
           ))}
         </TableBody>
