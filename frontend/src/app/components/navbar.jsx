@@ -11,23 +11,31 @@ export const Navbar = () => {
     <nav className="bg-[#962929] p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
-          <svg
-            className="h-8 w-8 text-white mr-2"
+        <svg
+            className="w-10 h-10 transform -rotate-45"
+            viewBox="0 0 100 100"
             fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M9 3h6m-6 16h6"
+            <rect
+              x="10"
+              y="30"
+              width="80"
+              height="40"
+              rx="20"
+              ry="20"
+              fill="#EF4444"
             />
+            <path
+              d="M10 50C10 39.5066 18.5066 31 29 31H50V69H29C18.5066 69 10 60.4934 10 50Z"
+              fill="#FCD34D"
+            />
+            <circle cx="75" cy="40" r="5" fill="white" />
           </svg>
-          <span className="text-white text-xl font-bold">Logo</span>
+          <span className="text-white text-xl font-bold">Pill Pal</span>
         </div>
 
-        {/* Desktop menu */}
+
         <div className="hidden md:flex space-x-4">
           <Link href="/" className="text-white hover:text-gray-200">
             Home

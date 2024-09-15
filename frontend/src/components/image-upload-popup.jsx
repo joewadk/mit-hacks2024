@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Upload, Camera, ImagePlus } from "lucide-react";
 
 export function ImageUploadPopup() {
-  const [uploadedImage, setUploadedImage] = useState(null)
   const [capturedImage, setCapturedImage] = useState(null)
   const [isOpen, setIsOpen] = useState(false)
   const [uploadedImages, setUploadedImages] = useState([]); 
@@ -41,8 +41,18 @@ export function ImageUploadPopup() {
   }
 
   const handleSubmit = () => {
-    console.log(uploadedImages);
-    setIsOpen(false);
+    const request_url = 'http://127.0.0.1:5000/user-images';
+    const request_param = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: uploadedImages}) 
+    };
+
+    fetch(request_url, request_param)
+    .then(res => console.log(res.json()))
+    .catch((err) => console.log(err))
+
+    setIsOpen(false)
   }
 
   return (
