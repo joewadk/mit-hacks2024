@@ -12,15 +12,24 @@ export function ImageUploadPopup() {
   const [uploadedImage, setUploadedImage] = useState(null)
   const [capturedImage, setCapturedImage] = useState(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [uploadedImages, setUploadedImages] = useState([]); 
+
 
   const handleFileUpload = (event) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => setUploadedImage(e.target?.result)
-      reader.readAsDataURL(file)
+    const files = event.target.files;
+    if (files.length > 0) {
+      const imageFiles = Array.from(files);
+      const newImages = imageFiles.map((file) => {
+        const reader = new FileReader();
+        return new Promise((resolve) => {
+          reader.onload = (e) => resolve(e.target?.result);
+          reader.readAsDataURL(file);
+        });
+      });
+      Promise.all(newImages).then((imageData) => setUploadedImages((prev) => [...prev, ...imageData]));
     }
-  }
+  };
+  
 
   const handleCapture = (event) => {
     const file = event.target.files?.[0]
@@ -32,8 +41,8 @@ export function ImageUploadPopup() {
   }
 
   const handleSubmit = () => {
-    // Handle form submission here
-    setIsOpen(false)
+    console.log(uploadedImages);
+    setIsOpen(false);
   }
 
   return (
@@ -70,14 +79,20 @@ export function ImageUploadPopup() {
                   className="hidden"
                   onChange={handleFileUpload} />
               </Label>
-              {uploadedImage && (
-                <div className="mt-4">
+              {uploadedImages.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {uploadedImages.map((image, index) => (
                   <img
-                    src={uploadedImage}
-                    alt="Uploaded"
-                    className="max-w-full h-auto rounded-lg" />
-                </div>
-              )}
+                    key={index}
+                    src={image}
+                    alt={`Uploaded ${index + 1}`}
+                    className="max-w-full h-auto rounded-lg"
+                    style={{ maxHeight: "200px" }} 
+                    />
+                    ))}
+              </div>
+            )}
+
             </div>
           </TabsContent>
           <TabsContent value="capture">
@@ -89,12 +104,14 @@ export function ImageUploadPopup() {
                   <p className="mt-2 text-sm text-gray-500">Click to take a picture</p>
                 </div>
                 <Input
-                  id="camera-capture"
+                  id="image-upload"
                   type="file"
                   accept="image/*"
-                  capture="environment"
+                  multiple 
                   className="hidden"
-                  onChange={handleCapture} />
+                  onChange={handleFileUpload}
+                />
+
               </Label>
               {capturedImage && (
                 <div className="mt-4">
