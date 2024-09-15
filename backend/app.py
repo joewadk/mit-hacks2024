@@ -7,6 +7,7 @@ import pg
 import sms  
 load_dotenv()
 from flask_cors import CORS
+from difflib import SequenceMatcher
 
 OPEN_AI_KEY = os.getenv('OPENAI_API_KEY')
 app = Flask(__name__)
@@ -97,59 +98,6 @@ def get_data():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/get_chat', methods=['GET'])
-def get_chat():
-    user_query = request.args.get('query', default='', type=str)  
-    image_lists = []
-
-    for i in range(1, 4):
-        base64_image = encode_image(f"./images/img{i}.webp")
-        image_lists.append(base64_image)
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {OPEN_AI_KEY}"
-    }
-
-    payload = {
-        "model": "gpt-4o-mini",
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": user_query  #insert query from frontend here!
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{image_lists[0]}"
-                        }
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{image_lists[1]}"
-                        }
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{image_lists[2]}"
-                        }
-                    }
-                ]
-            }
-        ],
-        "max_tokens": 300
-    }
-
-    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-    llm_response = response.json()['choices'][0]['message']['content']
-    return jsonify({"response": llm_response})
-
-
 @app.route('/chat-bot', methods=['POST'])
 def chat_bot():
     data = request.json
@@ -157,18 +105,20 @@ def chat_bot():
         "Content-Type": "application/json",
         "Authorization": f"Bearer {OPEN_AI_KEY}"
     }
-
+    medical_data=pg.query_data('jawad')
     if 'question' not in data or 'context' not in data:
         return jsonify({"error": "Both 'question' and 'context' fields are required"}), 400
 
     prompt = f"""
+    You are the ai realtime assistant for PillPal. 
     Answer the following question: {data['question']}
     
-    Here is the context to the conversation: {data['context']}
+    Here is the context to the conversation: {data['context'],medical_data}
+    Please format as human-readable as possible. Do not 
     """
 
     payload = {
-        "model": "gpt-4",  # Use the correct model name
+        "model": "gpt-4o",  # Use the correct model name
         "messages": [
             {
                 "role": "user",
@@ -191,8 +141,6 @@ def chat_bot():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
 @app.route('/chat', methods=['POST'])
 def post_chat():
     data = request.json
