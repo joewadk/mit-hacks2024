@@ -22,15 +22,12 @@ def encode_image(image_path):
 @app.route('/scan', methods=['POST'])
 def scan_images():
     try:
-        # Get images from the POST request (assumes images are sent as file uploads)
         image_files = request.files.getlist('images')
 
         if len(image_files) != 3:
             return jsonify({"error": "Exactly 3 images are required"}), 400
 
         image_lists = []
-
-        # Encode images
         for image_file in image_files:
             image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
             image_lists.append(image_base64)
@@ -56,28 +53,23 @@ def scan_images():
             "max_tokens": 300
         }
 
-        # Send request to OpenAI API
+        #openai stuff
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
         response_data = response.json()
 
-        # Extract and return the content of the response
         llm_response = response_data['choices'][0]['message']['content']
         return jsonify({"response": llm_response})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Route to query data from the database and send it to the frontend
 @app.route('/pills', methods=['POST'])
 def get_data():
     try:
         # Query the data from the 'jawad' table using pg.py's query_data function
         rows = pg.query_data('jawad')
-        
-        # Check if data exists
         if not rows:
-            return jsonify({"error": "No data found"}), 404
-        
+            return jsonify({"error": "No data found"}), 404  
         # Process the rows into a list of dictionaries
         data = []
         for row in rows:
@@ -89,12 +81,9 @@ def get_data():
                 "expected_time2": row[4],
                 "expected_time3": row[5]
             })
-
-        # Return the data as a JSON response
         return jsonify({"data": data}), 200
 
     except Exception as e:
-        # Handle any errors
         return jsonify({"error": str(e)}), 500
 
 
@@ -115,21 +104,21 @@ def chat_bot():
         return jsonify({"error": "Both 'question' and 'context' fields are required"}), 400
 
     prompt = f"""
-    You are the ai realtime assistant for PillPal. 
+    You are the ai realtime assistant for PillPal.  
     Answer the following question: {data['question']}
     
     Here is the context to the conversation: {data['context'],context}
     Please format as human-readable as possible. Do not simply paste the medical data for the user to read. You must construct human-readable responses.
     Your role is to be an assistant. If they have questions about what medications theyre taking, when to take it, and how to take it, you will always have the answer.
     do not tell me what prescriptions they are taking. just answer their questions. do not spit out information from context out of context.
-    """
+    """ #dont mind the hard prompt engineering. this was for the purposes of our demo 
 
     payload = {
-        "model": "gpt-4o",  # Use the correct model name
+        "model": "gpt-4o",  
         "messages": [
             {
                 "role": "user",
-                "content": prompt  # Pass the prompt as a single string
+                "content": prompt  
             }
         ],
         "max_tokens": 300
@@ -137,12 +126,8 @@ def chat_bot():
 
     try:
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-
-        # Handle unsuccessful responses
         if response.status_code != 200:
             return jsonify({"error": f"OpenAI API request failed with status {response.status_code}"}), response.status_code
-
-        # Extract the LLM's response
         llm_response = response.json()['choices'][0]['message']['content']
         return jsonify({"answer": llm_response}), 201
 
@@ -158,7 +143,6 @@ def post_chat():
     expected_time2 = data.get('expected_time2')
     expected_time3 = data.get('expected_time3')
 
-    # Call the insert_data function from pg.py
     pg.insert_data(
         prescription_name,
         raw_instruction,
@@ -168,25 +152,18 @@ def post_chat():
         expected_time3
     )
     return jsonify({"message": "Data inserted successfully"}), 201
-
-# Route to send SMS using the sms.py script
 @app.route('/send_sms', methods=['POST'])
 def send_sms():
     data = request.json
     recipient_email = data.get('recipient_email')
     sms_body = data.get('sms_body')
-
-    # Call the send_sms function from sms.py
     result = sms.send_sms(recipient_email, sms_body)
     return jsonify({"message": result})
 
 @app.route('/input_data', methods=['POST'])
 def input_data():
     try:
-        # Get JSON data from the frontend POST request
         data = request.json
-
-         # Extract the individual values from the received JSON and log them
         prescription_name = data['prescription_name']
         raw_instruction = data['raw_instruction']
         expiration_date = data['expiration_date'] if data['expiration_date'] else None
@@ -194,22 +171,19 @@ def input_data():
         expected_time2 = data.get('expected_time2') if data['expected_time2'] else None
         expected_time3 = data.get('expected_time3') if data['expected_time3'] else None
 
-
-        # Call the insert_data function from pg.py to insert or update the data
         pg.insert_data(prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3)
         print(expiration_date)
         print("Inserting data:", prescription_name, raw_instruction, expiration_date, expected_time1, expected_time2, expected_time3)
-        # Return a success message
         return jsonify({"message": "Record inserted/updated successfully"}), 200
 
     except KeyError as e:
-        # Handle missing fields in the request
         return jsonify({"error": f"Missing field: {str(e)}"}), 400
 
     except Exception as e:
-        # Handle any other errors
         return jsonify({"error": str(e)}), 500
-# Directory where uploaded images will be saved
+    
+
+# directory where uploaded images will be saved
 UPLOAD_FOLDER = './images'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 

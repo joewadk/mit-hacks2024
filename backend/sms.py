@@ -5,7 +5,9 @@ import psycopg2
 import os
 load_dotenv()
 
-# Function to query medications for the morning (6AM to 11AM)
+
+
+#this is called by app.py. everytime it is run it send a query and an sms notification to specified number
 def query_morning_medications():
     try:
         con = psycopg2.connect(
@@ -59,23 +61,17 @@ def send_sms(recipient_email, sms_body):
         return "SMS sent!"
     except Exception as e:
         return str(e)
-
-# Main function to query medications and send SMS
 def send_morning_medication_reminder(recipient_email):
     morning_medications = query_morning_medications()
 
     if not morning_medications:
         print("No morning medications found.")
         return
-
-    # Create the SMS body with the list of medications
     sms_body = "You have the following medications to take this morning:\n"
     for med in morning_medications:
         sms_body += f"- {med[0]}: {med[1]}\n"
 
-    # Send the SMS via email
     result = send_sms(recipient_email, sms_body)
     print(result)
 
-# Example usage
 send_morning_medication_reminder('asbcascacs@ishmamf.com')

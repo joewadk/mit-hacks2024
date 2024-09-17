@@ -4,15 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ImageUploadPopup } from "./image-upload-popup";
 
+/*
+this doesnt work correctly. need to fix this
+*/
+
 export function PillsTableComponent() {
   const [filter, setFilter] = useState('all');
   const [pills, setPills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedImages, setSelectedImages] = useState([]); // Track selected images for scanning
-  const [checkedPills, setCheckedPills] = useState({ morning: [], afternoon: [], evening: [] }); // Track checked pills per time of day
+  const [selectedImages, setSelectedImages] = useState([]); 
+  const [checkedPills, setCheckedPills] = useState({ morning: [], afternoon: [], evening: [] }); 
 
-  // Function to fetch pills from the backend
   const fetchPills = async () => {
     try {
       const response = await fetch('http://localhost:5000/pills', {
@@ -20,7 +23,7 @@ export function PillsTableComponent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ filter: 'all' }) // Example data sent in the POST request
+        body: JSON.stringify({ filter: 'all' }) 
       });
   
       if (!response.ok) {
@@ -36,17 +39,14 @@ export function PillsTableComponent() {
     }
   };
 
-  // Fetch pills when the component is mounted
   useEffect(() => {
     fetchPills();
   }, []);
-
-  // Helper function to extract the hour from the time string (expected_time)
   const extractHour = (timeString) => {
     return timeString ? parseInt(timeString.split(" ")[1].split(":")[0]) : null;
   };
 
-  // Filter pills based on the time of day
+
   const filteredPills = pills.filter((pill) => {
     const hour1 = extractHour(pill.expected_time1);
     const hour2 = extractHour(pill.expected_time2);

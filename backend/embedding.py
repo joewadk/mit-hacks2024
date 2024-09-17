@@ -4,6 +4,7 @@ import os
 load_dotenv()
 
 OPEN_AI_KEY = os.getenv('OPEN_AI_KEY')
+# This was a test of openai's embeddings. disreagard this file
 
 
 embeddings_model = OpenAIEmbeddings(api_key=OPEN_AI_KEY)

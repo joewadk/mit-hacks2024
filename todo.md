@@ -1,0 +1,10 @@
+- [ ] Make sure to fix sms sending route
+- [ ] combine component folders in /frontend
+- [ ] implement opencv to actually work and store in db
+- [ ] implement scheduling for sms reminders
+- [ ] use tune's opensource models
+- [ ] implement scanning of local images to then be pushed into db
+- [ ] fix pills-table.jsx to actually query instead of use example data
+- [ ] implement global count of all medications taken. when a user checks off it decrements by 1. once we hit 0, congratulate the user for taking their meds on time.
+- [ ] implement model to create best recommended times. do not use llm. train your own model
+- [ ] 
